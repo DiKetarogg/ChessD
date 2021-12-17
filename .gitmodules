@@ -1,0 +1,3 @@
+[submodule "Dependencies/opennn"]
+	path = Dependencies/opennn
+	url = https://github.com/Artelnics/OpenNN
