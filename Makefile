@@ -77,6 +77,9 @@ drun: debug
 
 compile: ${OBJS} ${TARGET}
 
+Dependencies/opennn/opennn/libopennn.a:
+	(cd ./Dependencies/opennn && make)
+
 $(TARGET): $(TARGET_DIR) ${OBJS} Dependencies/opennn/opennn/libopennn.a
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -o $(TARGET) $(CLINK)
 
