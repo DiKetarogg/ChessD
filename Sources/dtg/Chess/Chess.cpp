@@ -20,22 +20,26 @@ namespace dtg {
 	}
 	/*	private:*/
 	bool Chess::MoveInternal(uint8_t from, uint8_t to) {
-		switch (m_Board.GetPiece(fromt).GetType()) {
+		switch (m_Board.GetPiece(from).GetType()) {
 		case ChessPiece::Type::K:
 			m_Board.Move(from, to);
 			if (abs((int)ChessConstants::COLUMN[from] - ChessConstants::COLUMN[to]) > 1) {
 				switch (ChessConstants::COLUMN[to]) {
 					case 1:
-						m_Board.move(to - 1, to + 1);
+						m_Board.Move(to - 1, to + 1);
+						SwitchTurn();
 						return true;
 					case 2:
-						m_Board.move(to - 2, to + 1);
+						m_Board.Move(to - 2, to + 1);
+						SwitchTurn();
 						return true;
 					case 5:
-						m_Board.move(to + 2, to - 1);
+						m_Board.Move(to + 2, to - 1);
+						SwitchTurn();
 						return true;
 					case 6:
-						m_Board.move(to + 1, to - 1);
+						m_Board.Move(to + 1, to - 1);
+						SwitchTurn();
 						return true;
 				}
 			}
@@ -45,250 +49,242 @@ namespace dtg {
 
 			}
 		}
+		return false;
 	}
 	bool Chess::CheckUnderAttack(uint8_t from, ChessPiece::Color color){
 		bool figure = 0;
 		uint8_t figure_position;
 		for(uint8_t i = from + 1; CheckXOutOfBounds(from, i); ++i){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::R:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::HORIZONTAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::R:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::HORIZONTAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from - 1; CheckXOutOfBounds(from, i); --i){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::R:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::HORIZONTAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::R:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::HORIZONTAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from + 8; CheckYOutOfBounds(from, i); i += 8){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::R:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::VERTICAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::R:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::VERTICAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from - 8; CheckYOutOfBounds(from, i); i -= 8){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::R:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::VERTICAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::R:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::VERTICAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from + 9; CheckXOutOfBounds(from, i); i += 9){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::B:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::DIAGONAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::B:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::DIAGONAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from - 9; CheckXOutOfBounds(from, i); i -= 9){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::B:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::DIAGONAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::B:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::DIAGONAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from + 7; CheckXOutOfBounds(from, i); i += 7){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::B:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::BDIAGONAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::B:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::BDIAGONAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
 		figure = 0;
 		for(uint8_t i = from - 7; CheckXOutOfBounds(from, i); i -= 7){
-			if(auto piece = m_Board.GetPiece(i)){
-				if(piece.GetColor() != color){
-					switch (piece.GetType()){
-						case ChessPiece::Type::Q:
-						case ChessPiece::Type::B:
-							if(figure)
-								Pinned[figure_position] = Chess::Pin::BDIAGONAL;
-							else {
-								for(uint8_t j = i; j < from; ++j){
-									Pinned[j] = Chess::Pin::ATTACK;
-								}
-								attacks++;
+			auto piece = m_Board.GetPiece(i);
+			if(piece && piece.GetColor() != color){
+				switch (piece.GetType()){
+					case ChessPiece::Type::Q:
+					case ChessPiece::Type::B:
+						if(figure)
+							Pinned[figure_position] = Chess::Pin::BDIAGONAL;
+						else {
+							for(uint8_t j = i; j < from; ++j){
+								Pinned[j] = Chess::Pin::ATTACK;
 							}
-						default:;
-					}
+							attacks++;
+						}
+					default:;
+				}
+			}
+			else{
+				if(figure){
+					Pinned[figure_position] = Chess::Pin::CHECK;
+					Pinned[i] = Chess::Pin::CHECK;
 				}
 				else{
-					if(figure){
-						Pinned[figure_position] = Chess::Pin::CHECK;
-						Pinned[i] = Chess::Pin::CHECK;
-					}
-					else{
-						figure_position = i;
-						figure = 1;
-					}
+					figure_position = i;
+					figure = 1;
 				}
 			}
 		}
-
 		figure_position = from + 17;
 		if(auto piece = m_Board.GetPiece(figure_position)){
 			if(piece.GetType() == ChessPiece::Type::N && piece.GetColor() != color){
@@ -370,7 +366,8 @@ namespace dtg {
 		}
 			if (to < 64 && m_Board.GetPiece(to).GetColor() != color)
 				m_Moves.insert(ChessMove(from, to));
-			}
+	}
+
 	inline void Chess::HorizontalLane(uint8_t from, ChessPiece::Color color) {
 		uint8_t to;
 		for (to = from + 1; CheckXOutOfBounds(from, to); to += 1) {
@@ -391,7 +388,6 @@ namespace dtg {
 		}
 			if (to < 64 && m_Board.GetPiece(to).GetColor() != color)
 				m_Moves.insert(ChessMove(from, to));
-
 	}
 
 	inline void Chess::BackDiagonalLane(uint8_t from, ChessPiece::Color color) {
@@ -436,6 +432,37 @@ namespace dtg {
 			if (to < 64 && m_Board.GetPiece(to).GetColor() != color)
 				m_Moves.insert(ChessMove(from, to));
 	}
+	void Chess::KingMoves(ChessPiece::Color color){
+		uint8_t from, to;
+		if(color == ChessPiece::Color::WHITE)
+			from = whiteKing;
+		else
+			from = blackKing;
+		to = from + 1;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from - 1;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from + 8;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from - 8;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from + 9;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from - 9;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from + 7;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+		to = from - 7;
+		if(CheckUnderAttack(to, color))
+			m_Moves.insert(ChessMove(from, to));
+	}
 	//16 +- 1
 	inline void Chess::Knight(uint8_t from, ChessPiece::Color color) {
 		uint8_t to = from + 17;
@@ -477,8 +504,8 @@ namespace dtg {
 	void Chess::CalculateWhitePieceMoves(uint8_t from, ChessPiece::Type piece){
 		switch(piece){
 			case ChessPiece::Type::P:
-				if(Pinned[from] == Chess::Pin::CHECK)
-					CalculateWhitePawn(from);
+				if(Pinned[from] == Chess::Pin::CHECK || Pinned[from] == Chess::Pin::VERTICAL)
+					CalculatePawn(from);
 				break;
 			case ChessPiece::Type::R:
 				switch (Pinned[from]) {
@@ -546,8 +573,8 @@ namespace dtg {
 	void Chess::CalculateBlackPieceMoves(uint8_t from, ChessPiece::Type piece){
 		switch(piece){
 		case ChessPiece::Type::P:
-			if(Pinned[from] == Chess::Pin::CHECK)
-				CalculateBlackPawn(from);
+			if(Pinned[from] == Chess::Pin::CHECK || Pinned[from] == Chess::Pin::VERTICAL)
+				CalculatePawn(from);
 			break;
 		case ChessPiece::Type::R:
 			switch (Pinned[from]) {
@@ -620,7 +647,7 @@ namespace dtg {
 		to -= 1;
 		if(!CheckXOutOfBounds(from, to)) {
 			auto piece = m_Board.GetPiece(to);
-			if (piece && piece.GetColor() = color)
+			if (piece && piece.GetColor() != color)
 				m_Moves.insert(ChessMove(from, to));
 		}
 		to += 2;
@@ -634,13 +661,13 @@ namespace dtg {
 	void Chess::CalculatePawn(uint8_t from) {
 		if (whiteTurn) {
 			CalculatePawnForward(from, from + 8);
-			CalculatePawnTake(from, from + 8, ChessConstants::Color::WHITE);
+			CalculatePawnTake(from, from + 8, ChessPiece::Color::WHITE);
 			if (ChessConstants::ROW[from] == 1)
 				CalculatePawnForward(from, from + 16);
 		} else {
 
 			CalculatePawnForward(from, from - 8);
-			CalculatePawnTake(from, from - 8, ChessConstants::Color::BLACK);
+			CalculatePawnTake(from, from - 8, ChessPiece::Color::BLACK);
 			if (ChessConstants::ROW[from] == 6)
 				CalculatePawnForward(from, from - 16);
 		}
@@ -650,23 +677,33 @@ namespace dtg {
 	void Chess::CalculateWhiteMoves() {
 		ChessPiece piece;
 		CheckUnderAttack(whiteKing, ChessPiece::Color::WHITE);
-		for (uint8_t from = 0; from != 64; ++from) {
-			piece = m_Board.GetPiece(from);
-			if(piece && piece.GetColor() == ChessPiece::Color::WHITE) {
-				CalculateWhitePieceMoves(from, piece.GetType());
+		if(attacks > 1){
+			KingMoves(ChessPiece::Color::WHITE);
+		}
+		else {
+			for (uint8_t from = 0; from != 64; ++from) {
+				piece = m_Board.GetPiece(from);
+				if(piece && piece.GetColor() == ChessPiece::Color::WHITE) {
+					CalculateWhitePieceMoves(from, piece.GetType());
+				}
 			}
 		}
 	}
-void Chess::CalculateBlackMoves() {
-	ChessPiece piece;
-	CheckUnderAttack(blackKing, ChessPiece::Color::BLACK);
-	for (uint8_t from = 0; from != 64; ++from){
-		piece = m_Board.GetPiece(from);
-		if(piece && piece.GetColor() == ChessPiece::Color::BLACK) {
-			CalculateBlackPieceMoves(from, piece.GetType());
+	void Chess::CalculateBlackMoves() {
+		ChessPiece piece;
+		CheckUnderAttack(blackKing, ChessPiece::Color::BLACK);
+		if(attacks > 1){
+			KingMoves(ChessPiece::Color::BLACK);
+		}
+		else {
+			for (uint8_t from = 0; from != 64; ++from){
+				piece = m_Board.GetPiece(from);
+				if(piece && piece.GetColor() == ChessPiece::Color::BLACK) {
+					CalculateBlackPieceMoves(from, piece.GetType());
+				}
+			}
 		}
 	}
-}
 void Chess::CalculateMoves() {
 	if (whiteTurn)
 		CalculateWhiteMoves();

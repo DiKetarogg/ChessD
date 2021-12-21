@@ -35,7 +35,7 @@ namespace dtg {
 			void CalculatePawnTake(uint8_t from, uint8_t to, ChessPiece::Color color);
 			void CalculatePawnForward(uint8_t from, uint8_t to);
 			void CalculatePawn(uint8_t from);
-			//bool KingUnderAttack(uint8_t from, ChessPiece::Color color);
+			void KingMoves(ChessPiece::Color color);
 			bool CheckUnderAttack(uint8_t from, ChessPiece::Color color);
 			bool CheckXOutOfBounds(uint8_t from, uint8_t to)const;
 			bool CheckYOutOfBounds(uint8_t from, uint8_t to)const;
