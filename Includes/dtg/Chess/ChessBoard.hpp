@@ -19,7 +19,13 @@ namespace dtg {
 				reinterpret_cast<void*>(this->data),
 				reinterpret_cast<const void*>(data.data), sizeof(ChessPiece) * 64);
 			}
-			ChessBoard():data(ChessConstants::STANDART_POSITION){};
+			ChessBoard() {
+
+				memcpy(
+				reinterpret_cast<void*>(this->data),
+				reinterpret_cast<const void*>(ChessConstants::STANDART_POSITION),
+				sizeof(ChessPiece) * 64);
+			}
 
 			inline void Move(uint8_t from, uint8_t to) {
 				data[to] = data[from];

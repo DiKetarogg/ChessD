@@ -3,7 +3,8 @@
 #define DTG_CHESS_CHESSCONSTANTS_HPP
 #endif
 #include "ChessPiece.hpp"
-namespace dtg::ChessConstants {
+namespace dtg {
+namespace ChessConstants {
 	extern const ChessPiece BP;
 	extern const ChessPiece BR;
 	extern const ChessPiece BN;
@@ -65,4 +66,5 @@ namespace dtg::ChessConstants {
 	extern const uint8_t ROW[64];
 	extern const uint8_t DIAGONAL[64];
 	extern const uint8_t BDIAGONAL[64];
-};
+}//dtg
+}//ChessConstants

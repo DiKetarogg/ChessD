@@ -37,6 +37,7 @@ SRCS_EXT	=.cpp
 OBJS_EXT	=.o
 HEADER_EXT	=.hpp
 CC		=g++-10 -std=c++14 -o2 -LDependencies/opennn/opennn
+#CC		=clang++ -std=c++14 -o2 -LDependencies/opennn/opennn
 CLINK		=-lopennn -fopenmp
 CFLAGS		=-Wextra -Wall# -Werror
 DEBUG_FLAGS	=-g3

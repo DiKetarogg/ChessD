@@ -6,48 +6,48 @@
 #include "Chess/ChessConstants.hpp"
 #include "Chess/ChessPiece.hpp"
 #include "Chess/ChessMoveDecoder.hpp"
+
+#include <unordered_set>
 namespace dtg {
 	class Chess {
-		public:
-		const ChessBoard& GetBoard() const noexcept;
-		ChessBoard& GetBoard() noexcept;
 		private:
-		void CalculateWhitePieceMoves(uint8_t x, uint8_t y, ChessPiece::Piece piece)
-		void CalculateWhiteMoves() {
-			ChessPiece piece;
-			for (uint8_t x = 0; x != 8; ++x) {
-				for (uint8_t y = 0; y != 8; ++y) {
-					piece = m_Board[y][x];
-					if(piece && piece.GetColor() == ChessPiece::Color::WHITE) {
-						CalculateWhitePieceMoves(x, y, piece);
-					}
-				}
-			}
-		}
-		CalculateBlackMoves() {
-			for (uint8_t x = 0; x != 8; ++x) {
-				for (uint8_t y = 0; y != 8; ++y) {
-					if(m_Board[y][x].GetPiece() != ChessPiece::Get) {
-
-					}
-				}
-			}
-		}
-		CalculateMoves() {
-			if (white_turn)
-				CalculateWhiteMoves();
-			else
-				CalculateBlackMoves();
-		}
-		//State state;
-		//uint8_t enpassat;
-		std::unordered_set<ChessMoveXY> m_Moves;
-		ChessBoard m_Board;
-		//	std::string history;
-		uint8_t white_king;
-		uint8_t black_king;
-		bool WhiteTurn = true;
-		//static const uint8_t black_mask = 0x3;
-		//static const uint8_t white_mask = 0xC;
+			enum Pin {
+				HORIZONTAL,
+				VERTICAL,
+				DIAGONAL,
+				BDIAGONAL,
+				CHECK
+			};
+		public:
+			const ChessBoard& GetBoard() const noexcept;
+			ChessBoard& GetBoard() noexcept;
+		private:
+			inline void VerticalLane(uint8_t from, ChessPiece::Color color);
+			inline void HorizontalLane(uint8_t from, ChessPiece::Color color);
+			inline void BackDiagonalLane(uint8_t from, ChessPiece::Color color);
+			inline void DiagonalLane(uint8_t from, ChessPiece::Color color);
+			inline void Knight(uint8_t from, ChessPiece::Color color);
+		private:
+			bool CheckXOutOfBounds(uint8_t from, uint8_t to)const;
+			bool CheckYOutOfBounds(uint8_t from, uint8_t to)const;
+			void CalculateWhitePieceMoves(uint8_t from, ChessPiece::Type piece);
+			void CalculateBlackPieceMoves(uint8_t from, ChessPiece::Type piece);
+			void CalculateWhitePawn(uint8_t from);
+			void CalculateBlackPawn(uint8_t from);
+			void CalculateWhiteMoves();
+			void CalculateBlackMoves();
+			void CalculateMoves();
+			void CalculateChecks();
+			//State state;
+			//uint8_t enpassat;
+			std::unordered_set<uint16_t> m_Moves;
+			ChessBoard m_Board;
+			//	std::string history;
+			Pin Pinned[64];
+			uint8_t whiteKing;
+			uint8_t blackKing;
+			bool whiteTurn = true;
+			//static const uint8_t black_mask = 0x3;
+			//static const uint8_t white_mask = 0xC;
 	};
 }

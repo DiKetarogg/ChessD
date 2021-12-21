@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include <iostream>
 #include <dtg/Chess.hpp>
 std::ostream& operator <<(std::ostream& stream, const dtg::ChessMoveXY other) {
@@ -168,10 +168,79 @@ int main() {
 }
 #else
 
-#include <data_set.h>
+#include <iostream>
 #include <fstream>
-int main() {
+#include <sstream>
+#include <string>
+#include <cstring>
+#include <time.h>
+
+// OpenNN includes
+
+#include <opennn.h>
+
+
+int main()
+{
 	using namespace OpenNN;
-	DataSet data_set("iris_flowers.csv",',',true);
-}
+	using namespace std;
+	using namespace Eigen;
+	try
+	{
+		srand(static_cast<unsigned>(time(nullptr)));
+
+		// Data set
+
+		DataSet data_set("chess_game.csv", ',', true);
+
+		const Index input_variables_number = data_set.get_input_variables_number();
+		const Index target_variables_number = data_set.get_target_variables_number();
+		std::cout << "vars:targets [" << input_variables_number << ":" <<  target_variables_number << "]\n";
+		return 0;
+
+		// Neural network
+
+		const Index hidden_neurons_number = 2048;
+
+		NeuralNetwork neural_network(
+			NeuralNetwork::ProjectType::Approximation,
+			{input_variables_number, hidden_neurons_number, target_variables_number}
+		);
+
+		// Training strategy
+
+		TrainingStrategy training_strategy(&neural_network, &data_set);
+
+		training_strategy.set_loss_method(TrainingStrategy::LossMethod::CROSS_ENTROPY_ERROR);
+		training_strategy.perform_training();
+
+		// Testing analysis
+
+		const TestingAnalysis testing_analysis(&neural_network, &data_set);
+
+		Tensor<type, 2> inputs(1, 576);
+
+		inputs.setValues({{type(5.1),type(3.5),type(1.4),type(0.2)},
+				{type(6.4),type(3.2),type(4.5),type(1.5)},
+				{type(6.3),type(2.7),type(4.9),type(1.8)}});
+
+		const Tensor<Index, 2> confusion = testing_analysis.calculate_confusion();
+
+		cout << "\nConfusion matrix:\n" << confusion << endl;
+
+		// Save results
+
+		neural_network.save("./data/neural_network.xml");
+		neural_network.save_expression_c("./data/neural_network.c");
+		neural_network.save_expression_python("./data/neural_network.py");
+
+		return 0;
+	}
+	catch(exception& e)
+	{
+		cout << e.what() << endl;
+
+		return 1;
+	}
+}  
 #endif

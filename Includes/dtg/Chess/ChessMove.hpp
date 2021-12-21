@@ -7,6 +7,13 @@
 
 namespace dtg {
 	struct ChessMove {
+		ChessMove(uint8_t from, uint8_t to):from(from), to(to){}
+		operator uint16_t&() {
+			return *reinterpret_cast<uint16_t*>(&from);
+		}
+		operator const uint16_t&() const {
+			return *reinterpret_cast<const uint16_t*>(&from);
+		}
 		uint8_t from;
 		uint8_t to;
 	};

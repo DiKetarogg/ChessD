@@ -1,5 +1,6 @@
 #include <dtg/Chess/ChessConstants.hpp>
-namespace dtg::ChessConstants {
+namespace dtg {
+namespace ChessConstants {
 	const ChessPiece BP = ChessPiece::BP;
 	const ChessPiece BR = ChessPiece::BR;
 	const ChessPiece BN = ChessPiece::BN;
@@ -103,4 +104,4 @@ namespace dtg::ChessConstants {
 		6,   7,   15,  23,  31,  39,  47,  55,
 		7,   15,  23,  31,  39,  47,  55,  63
 	};
-} //namespace dtg::ChessConstants
+}} //namespace dtg::ChessConstants
