@@ -36,19 +36,25 @@ DEBUG_DIR	=bin
 SRCS_EXT	=.cpp
 OBJS_EXT	=.o
 HEADER_EXT	=.hpp
-CC		=g++-10 -std=c++14 -o2 -LDependencies/opennn/opennn
+CC		=g++ -std=c++14 -o2 -LDependencies/opennn/opennn
 #CC		=clang++ -std=c++14 -o2 -LDependencies/opennn/opennn
 CLINK		=-lopennn -fopenmp
 CFLAGS		=-Wextra -Wall# -Werror
 DEBUG_FLAGS	=-g3
 DEBUG_PROGRAM	=gdb -tui
+opennn		=Dependencies/opennn/opennn/libopennn.a
+opennn_make	=Dependencies/opennn/Makefile
+
 #-lsfml-graphics -lsfml-window -lsfml-system
 #*
 #* ************************************************************************** *#
 #*                              Additional commands                           *#
 #* ************************************************************************** *#
 #*
-
+opennn: opennn_make
+	(cd ./Dependencies/opennn && make)
+opennn_make:
+	(cd Dependencies/opennn && cmake .)
 #*
 #* ************************************************************************** *#
 #*                             Do not edit below                              *#
@@ -78,10 +84,8 @@ drun: debug
 
 compile: ${OBJS} ${TARGET}
 
-Dependencies/opennn/opennn/libopennn.a:
-	(cd ./Dependencies/opennn && make)
 
-$(TARGET): $(TARGET_DIR) ${OBJS} Dependencies/opennn/opennn/libopennn.a
+$(TARGET): $(TARGET_DIR) ${OBJS} opennn
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -o $(TARGET) $(CLINK)
 
 $(DEBUG_TARGET): $(DEBUG_DIR) $(OBJS)

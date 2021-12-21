@@ -28,6 +28,7 @@ namespace dtg {
 			inline void DiagonalLane(uint8_t from, ChessPiece::Color color);
 			inline void Knight(uint8_t from, ChessPiece::Color color);
 		private:
+			bool KingUnderAttack(uint8_t from, ChessPiece::Color color);
 			bool CheckXOutOfBounds(uint8_t from, uint8_t to)const;
 			bool CheckYOutOfBounds(uint8_t from, uint8_t to)const;
 			void CalculateWhitePieceMoves(uint8_t from, ChessPiece::Type piece);
