@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include <iostream>
 #include <dtg/Chess.hpp>
 std::ostream& operator <<(std::ostream& stream, const dtg::ChessMoveXY other) {

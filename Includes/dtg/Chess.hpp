@@ -16,6 +16,7 @@ namespace dtg {
 				VERTICAL,
 				DIAGONAL,
 				BDIAGONAL,
+				ATTACK,
 				CHECK
 			};
 		public:
@@ -28,7 +29,8 @@ namespace dtg {
 			inline void DiagonalLane(uint8_t from, ChessPiece::Color color);
 			inline void Knight(uint8_t from, ChessPiece::Color color);
 		private:
-			bool KingUnderAttack(uint8_t from, ChessPiece::Color color);
+			//bool KingUnderAttack(uint8_t from, ChessPiece::Color color);
+			bool CheckUnderAttack(uint8_t from, ChessPiece::Color color);
 			bool CheckXOutOfBounds(uint8_t from, uint8_t to)const;
 			bool CheckYOutOfBounds(uint8_t from, uint8_t to)const;
 			void CalculateWhitePieceMoves(uint8_t from, ChessPiece::Type piece);
@@ -47,6 +49,7 @@ namespace dtg {
 			Pin Pinned[64];
 			uint8_t whiteKing;
 			uint8_t blackKing;
+			short attacks;
 			bool whiteTurn = true;
 			//static const uint8_t black_mask = 0x3;
 			//static const uint8_t white_mask = 0xC;
