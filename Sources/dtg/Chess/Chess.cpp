@@ -6,23 +6,44 @@ namespace dtg {
 	ChessBoard& Chess::GetBoard() noexcept {
 		return m_Board;
 	}
-	bool Move(uint8_t from, uint8_t to) {
+	bool Chess::Move(uint8_t from, uint8_t to) {
 		if (m_Moves.empty()) {
 			CalculateMoves();
 		}
 		if (m_Moves.find(ChessMove(from, to)) != m_Moves.end()) {
-			return InternalMove(from, to);
+			return MoveInternal(from, to);
 		}
 		return false;
 	}
-	void SwitchTurn() {
-		whiteTurn = whiteTurn ? 0 : 1;	
+	void Chess::SwitchTurn() {
+		whiteTurn ^= 1;	
 	}
 	/*	private:*/
-	bool InternalMove(uint8_t from, uint8_t to) {
-		switch(m_Board.GetPiece(from).GetType()) {
-			case ChessPiece::Type::P:
-				abs(ChessConstants)
+	bool Chess::MoveInternal(uint8_t from, uint8_t to) {
+		switch (m_Board.GetPiece(fromt).GetType()) {
+		case ChessPiece::Type::K:
+			m_Board.Move(from, to);
+			if (abs((int)ChessConstants::COLUMN[from] - ChessConstants::COLUMN[to]) > 1) {
+				switch (ChessConstants::COLUMN[to]) {
+					case 1:
+						m_Board.move(to - 1, to + 1);
+						return true;
+					case 2:
+						m_Board.move(to - 2, to + 1);
+						return true;
+					case 5:
+						m_Board.move(to + 2, to - 1);
+						return true;
+					case 6:
+						m_Board.move(to + 1, to - 1);
+						return true;
+				}
+			}
+			break;
+		case ChessPiece::Type::P:
+			if (ChessConstants::COLUMN[from] == ChessConstants::COLUMN[to]) {
+
+			}
 		}
 	}
 	bool Chess::CheckUnderAttack(uint8_t from, ChessPiece::Color color){
@@ -591,40 +612,39 @@ namespace dtg {
 		}
 	}
 
-	void Chess::CalculateWhitePawn(uint8_t from){
-		uint8_t to = from + 8;
+	void Chess::CalculatePawnForward(uint8_t from, uint8_t to) {
 		if (!m_Board.GetPiece(to) && !CheckYOutOfBounds(from, to))
 			m_Moves.insert(ChessMove(from, to));
+	}
+	void Chess::CalculatePawnTake(uint8_t from, uint8_t to, ChessPiece::Color color) {
 		to -= 1;
-		if(!CheckXOutOfBounds(from, to)){
+		if(!CheckXOutOfBounds(from, to)) {
 			auto piece = m_Board.GetPiece(to);
-			if (piece && piece.GetColor() == ChessPiece::Color::BLACK)
+			if (piece && piece.GetColor() = color)
 				m_Moves.insert(ChessMove(from, to));
 		}
 		to += 2;
 		if (!CheckXOutOfBounds(from, to)) {
 			auto piece = m_Board.GetPiece(to);
-			if (piece && piece.GetColor() == ChessPiece::Color::BLACK)
+			if (piece && piece.GetColor() != color)
 				m_Moves.insert(ChessMove(from, to));
 		}
 	}
 
-	void Chess::CalculateBlackPawn(uint8_t from) {
-		uint8_t to = from - 8;
-		if (!m_Board.GetPiece(to) && !CheckYOutOfBounds(from, to))
-			m_Moves.insert(ChessMove(from, to));
-		to -= 1;
-		if(!CheckXOutOfBounds(from, to)){
-			auto piece = m_Board.GetPiece(to);
-			if (piece && piece.GetColor() == ChessPiece::Color::WHITE)
-				m_Moves.insert(ChessMove(from, to));
+	void Chess::CalculatePawn(uint8_t from) {
+		if (whiteTurn) {
+			CalculatePawnForward(from, from + 8);
+			CalculatePawnTake(from, from + 8, ChessConstants::Color::WHITE);
+			if (ChessConstants::ROW[from] == 1)
+				CalculatePawnForward(from, from + 16);
+		} else {
+
+			CalculatePawnForward(from, from - 8);
+			CalculatePawnTake(from, from - 8, ChessConstants::Color::BLACK);
+			if (ChessConstants::ROW[from] == 6)
+				CalculatePawnForward(from, from - 16);
 		}
-		to += 2;
-		if (!CheckXOutOfBounds(from, to)) {
-			auto piece = m_Board.GetPiece(to);
-			if (piece && piece.GetColor() == ChessPiece::Color::WHITE)
-				m_Moves.insert(ChessMove(from, to));
-		}
+
 	}
 
 	void Chess::CalculateWhiteMoves() {
