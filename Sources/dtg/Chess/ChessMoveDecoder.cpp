@@ -80,6 +80,7 @@ namespace dtg {
 		bool ambiguos = type == target;
 		//Yeah, im too lazy to low optimize this.
 		//Hope, compiler is smart enough to figure it out.
+		if (move.toy != 7 && move.tox != 7)
 		for (uint8_t i = move.toy + 1, j = move.tox + 1; i < 8 && j < 8; ++i, ++j) {
 			type  = (*m_Board)[i][j].GetPiece();
 			if (type != ChessPiece::Piece::NO) {
@@ -96,7 +97,7 @@ namespace dtg {
 
 	inline void ChessMoveDecoder::DiagonalLaneCheck(ChessMoveXY& move, ChessPiece::Piece target) const {
 		ChessPiece::Piece type;
-		if (move.toy != 0 && move.tox != 0)
+		if (move.toy != 0 && move.tox != 7)
 			for (uint8_t i = move.toy - 1, j = move.tox + 1; i != 255 && j != 255; --i, ++j) {
 				type  = (*m_Board)[i][j].GetPiece();
 				if (type != ChessPiece::Piece::NO) {
@@ -110,6 +111,7 @@ namespace dtg {
 		bool ambiguos = type == target;
 		//Yeah, im too lazy to low optimize this.
 		//Hope, compiler is smart enough to figure it out.
+		if (move.toy != 7 && move.tox != 0)
 		for (uint8_t i = move.toy + 1, j = move.tox - 1; i < 8 && j < 8; ++i, --j) {
 			type  = (*m_Board)[i][j].GetPiece();
 			if (type != ChessPiece::Piece::NO) {
@@ -253,9 +255,9 @@ namespace dtg {
 		}
 		if (move.tox > 1) {
 			if (move.toy < 7)
-				ambiguos |= Check(move.tox - 1, move.toy + 2, move, target, ambiguos);
+				ambiguos |= Check(move.tox - 2, move.toy + 1, move, target, ambiguos);
 			if (move.toy > 0)
-				ambiguos |= Check(move.tox - 1, move.toy - 2, move, target, ambiguos);
+				ambiguos |= Check(move.tox - 2, move.toy - 1, move, target, ambiguos);
 		}
 		if (move.tox < 7) {
 			if (move.toy < 6)
@@ -321,17 +323,24 @@ namespace dtg {
 		ChessPiece::Piece type = ChessPiece::Piece::NO;
 		switch (move.piece) {
 			case ChessPiece::Type::P:
+				if (move.toy == 0)
+					break;
 				if (move.fromx == 255)
 					move.fromx = move.tox;
 				if (move.fromx != move.tox) {
-					move.fromy = move.toy + 1;
+					move.fromy = move.toy - 1;
 					break;
 				}
-				for (uint8_t i = 1; i != 3; ++i) {
-					type = (*m_Board)[move.toy - i][move.fromx].GetPiece();
+				for	(
+						uint8_t i = move.toy - 1,
+						end = move.toy > 3 ? move.toy - 3 : 0;
+						i != end ; --i
+					)
+				{
+					type = (*m_Board)[i][move.fromx].GetPiece();
 					if (type != ChessPiece::Piece::NO) {
 						if (type == ChessPiece::Piece::WP)
-							move.fromy = move.toy - i;
+							move.fromy = i;
 						break;
 					}
 				}
@@ -346,9 +355,7 @@ namespace dtg {
 				BishopCheck(move, ChessPiece::Piece::WB);
 			break;
 			case ChessPiece::Type::Q:
-			{
-
-			}
+				QueenCheck(move, ChessPiece::Piece::WQ);
 			break;
 			case ChessPiece::Type::K:
 				KingCheck(move, ChessPiece::Piece::WK);
@@ -361,25 +368,72 @@ namespace dtg {
 
 	ChessMoveXY ChessMoveDecoder::DecodeBlack
 	(const char *str) const {
-		ChessMoveXY move = ParseMove(str);
+		ChessMoveXY move;
+		try {
+			move = ParseMove(str);
+		}
+		catch (const char *exc) {
+			if (!strcmp(exc, "invalid format")) {
+				switch (ParseCastle(str)) {
+					case 1:
+					move.fromx = 4;
+					move.tox = 6;
+					move.fromy = 7;
+					move.toy = 7;
+					return move;
+					case 2:
+					move.fromx = 4;
+					move.tox = 2;
+					move.fromy = 7;
+					move.toy = 7;
+					return move;
+				}
+			}
+			throw exc;
+		}
+		if (move.tox == 255 || move.toy == 255)
+			throw "invalid format";
+		if (move.fromx < 8 && move.fromy < 8)
+			return move;
+		ChessPiece::Piece type = ChessPiece::Piece::NO;
 		switch (move.piece) {
 			case ChessPiece::Type::P:
-
+				if (move.toy == 7)
+					break;
+				if (move.fromx == 255)
+					move.fromx = move.tox;
+				if (move.fromx != move.tox) {
+					move.fromy = move.toy + 1;
+					break;
+				}
+				for	(
+						uint8_t i = move.toy + 1,
+						end = move.toy > 3 ? move.toy + 3 : 0;
+						i != end ; ++i
+					)
+				{
+					type = (*m_Board)[i][move.fromx].GetPiece();
+					if (type != ChessPiece::Piece::NO) {
+						if (type == ChessPiece::Piece::BP)
+							move.fromy = i;
+						break;
+					}
+				}
 			break;
 			case ChessPiece::Type::R:
-
+				RookCheck(move, ChessPiece::Piece::BR);
 			break;
 			case ChessPiece::Type::N:
-
+				KnightCheck(move, ChessPiece::Piece::BN);
 			break;
 			case ChessPiece::Type::B:
-
+				BishopCheck(move, ChessPiece::Piece::BB);
 			break;
 			case ChessPiece::Type::Q:
-
+				QueenCheck(move, ChessPiece::Piece::BQ);
 			break;
 			case ChessPiece::Type::K:
-
+				KingCheck(move, ChessPiece::Piece::BK);
 			break;
 			default:
 			throw "unexpected piece";
@@ -449,10 +503,10 @@ namespace dtg {
 
 		else if (c >= 'a' && c <= 'h')
 			if (move.fromx == 255)
-				move.fromx = 'h' - c;
+				move.fromx = c - 'a';
 			else if (move.tox == 255) {
 
-				move.tox = 'h' - c;
+				move.tox = c - 'a';
 			}
 			else throw "invalid format";
 
@@ -461,22 +515,23 @@ namespace dtg {
 //	const ChessBoard* m_Board;
 //CLASS END =========================
 	int ParseCastle(const char *str) {
+	
 		for (;isspace(*str);++str);
-		if (!*str)
+		if (!isalnum(*str)) ++str;
+		if (!*str || *str != '0') // 0
 			return 0;
-		if (*str != '0')
-			return 0;
+		++str;
 		for (;isspace(*str);++str);
-		if (*str != '0' && !isdigit(*str) && isprint(*str))
-			++str;
-		if (*str != '0')
+		if (!isalnum(*str)) ++str;
+		if (!*str || *str != '0') // 0-0
 			return 0;
+		++str;
 		for (;isspace(*str);++str);
-		if (*str != '0' && !isdigit(*str) && isprint(*str))
-			++str;
-		if (*str != '0')
+		if (!isalnum(*str)) ++str;
+		if (!*str || *str != '0') // 0-0-0
 			return 1;
 		return 2;
+
 	}
 
 	void ParseY(ChessMoveXY& move, char c) {
@@ -495,7 +550,12 @@ namespace dtg {
 			move.toy = c - '1';
 			if (move.toy > 7)
 				throw "invalid format";
-		} else throw "invalid format";
+		} else if (move.piece == ChessPiece::Type::B) {
+			move.piece = ChessPiece::Type::NO;
+			move.fromx = 1;
+			ParseY(move, c);
+		}
+		else throw "invalid format";
 	}
 
 	ChessMoveXY ParseMove(const char *str) {

@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include <iostream>
 #include <dtg/Chess.hpp>
 std::ostream& operator <<(std::ostream& stream, const dtg::ChessMoveXY other) {
@@ -56,16 +56,17 @@ void printBoard(const dtg::ChessBoard& board) {
 	uint8_t type;
 	char row = '8';
 	std::cout << "\n\t\t0:ABCDEFGH:0\n\t\t8:";
-	for (const dtg::ChessPiece* rit = board.rbegin(),
-		*rend = board.rend(); rit != rend; --rit)
+	for (int index = 56; index != -8; index -= 8)
+	for (int inc = 0; inc != 8; ++inc)
 	{
+		const auto e = board.GetPiece(index + inc);
 		if (++i == 8) {
 			std::cout << reset << ':' << row;
 			std::cout << "\n\t\t" << --row << ':';
 			someColor = false;
 			i = 0;
 		}
-		type = static_cast<uint8_t>((*rit).GetType()) >> 1;
+		type = static_cast<uint8_t>(e.GetType()) >> 1;
 		if (!type) {
 			if (someColor) {
 				std::cout << reset;
@@ -73,7 +74,7 @@ void printBoard(const dtg::ChessBoard& board) {
 				oldColor = 4;
 			}
 		}
-		else if ( ((color = static_cast<uint8_t>((*rit).GetColor())) != oldColor) ) {
+		else if ( ((color = static_cast<uint8_t>(e.GetColor())) != oldColor) ) {
 			if (color)
 				std::cout << white;
 			else 
@@ -132,7 +133,7 @@ void printBoardInverted(const dtg::ChessBoard& board) {
 	}
 	std::cout << reset << ":8\n\t\t0:HGFEDCBA:0\n";
 }
-
+/*
 int main() {
 	dtg::Chess game;
 	dtg::ChessBoard& board = game.GetBoard();
@@ -165,6 +166,62 @@ int main() {
 	board[s0.toy][s0.tox] = dtg::ChessPiece::BP;
 	printBoard(board);
 	printBoardInverted(board);
+	std::cout << "---------------------------------\n\n";
+	
+	try {
+		s0 = decoder.DecodeBlack("ee5");
+		s1 = decoder.DecodeBlack("e5");
+		s2 = decoder.DecodeBlack("ba5");
+		s3 = decoder.DecodeBlack("kd7");
+		s4 = decoder.DecodeBlack("ra7");
+		s5 = decoder.DecodeBlack("nh5");
+	}
+	catch(const char *s) {
+		std::cout << "Exception: " << s << '\n';
+	}
+	std::cout << s0 << '\n';
+	std::cout << s1 << '\n';
+	std::cout << s2 << '\n';
+	std::cout << s3 << '\n';
+	std::cout << s4 << '\n';
+	std::cout << s5 << '\n';
+	board[s0.toy][s0.tox] = dtg::ChessPiece::BP;
+	printBoard(board);
+}
+*/
+#include <string>
+int main() {
+	dtg::Chess game;
+	dtg::ChessBoard& board = game.GetBoard();
+	dtg::ChessMoveDecoder decoder(&game.GetBoard());
+	dtg::ChessMoveXY s;
+//	board[2][3] = dtg::ChessConstants::BP;
+	std::string string = "ba5";
+	bool white = 1;
+	for (;;) {
+		printBoard(board);
+		std::getline(std::cin, string);
+		try {
+			if (white) {
+				s = decoder.DecodeWhite(string.c_str());
+				white = 0;
+			}
+			else {
+				s = decoder.DecodeBlack(string.c_str());
+				white = 1;
+			}
+			if  (s.fromx == 255 || s.fromy == 255 || s.tox == 255 || s.toy == 255)
+				throw "move not found";
+		}
+		catch(const char *str) {
+			std::cout << "Parser error: " << str << '\n';
+			continue;
+		}
+		auto piece = board[s.fromy][s.fromx];
+		board.SetPiece(s.toy, s.tox, piece);
+		board.SetPiece(s.fromy, s.fromx, dtg::ChessConstants::NO);
+	}
+	//lal
 }
 #else
 
