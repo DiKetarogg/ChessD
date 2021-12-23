@@ -192,6 +192,7 @@ int main() {
 #include <string>
 int main() {
 	dtg::Chess game;
+	game.CalculateMoves();
 	dtg::ChessBoard& board = game.GetBoard();
 	dtg::ChessMoveDecoder decoder(&game.GetBoard());
 	dtg::ChessMoveXY s;

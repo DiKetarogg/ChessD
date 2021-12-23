@@ -6,9 +6,25 @@ namespace dtg {
 	ChessBoard& Chess::GetBoard() noexcept {
 		return m_Board;
 	}
+	bool Move(uint8_t from, uint8_t to) {
+		if (m_Moves.empty()) {
+			CalculateMoves();
+		}
+		if (m_Moves.find(ChessMove(from, to)) != m_Moves.end()) {
+			return InternalMove(from, to);
+		}
+		return false;
+	}
+	void SwitchTurn() {
+		whiteTurn = whiteTurn ? 0 : 1;	
+	}
 	/*	private:*/
-
-
+	bool InternalMove(uint8_t from, uint8_t to) {
+		switch(m_Board.GetPiece(from).GetType()) {
+			case ChessPiece::Type::P:
+				abs(ChessConstants)
+		}
+	}
 	bool Chess::CheckUnderAttack(uint8_t from, ChessPiece::Color color){
 		bool figure = 0;
 		uint8_t figure_position;

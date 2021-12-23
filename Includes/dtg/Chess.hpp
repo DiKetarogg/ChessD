@@ -22,7 +22,10 @@ namespace dtg {
 		public:
 			const ChessBoard& GetBoard() const noexcept;
 			ChessBoard& GetBoard() noexcept;
+			bool Move(uint8_t from, uint8_t to);
+			void SwitchTurn();
 		private:
+			bool MoveInternal(uint8_t from, uint8_t to);
 			inline void VerticalLane(uint8_t from, ChessPiece::Color color);
 			inline void HorizontalLane(uint8_t from, ChessPiece::Color color);
 			inline void BackDiagonalLane(uint8_t from, ChessPiece::Color color);
