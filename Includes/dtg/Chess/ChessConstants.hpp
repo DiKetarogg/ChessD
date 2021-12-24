@@ -59,6 +59,9 @@ namespace ChessConstants {
 	
 	extern const ChessPiece STANDART_POSITION[64];
 
+	extern const uint8_t STANDART_POSITION_WHITE_KING;
+	extern const uint8_t STANDART_POSITION_BLACK_KING;
+
 	extern const uint8_t STANDART_WHITEKING_POSITION;
 	extern const uint8_t STANDART_BLACKKING_POSITION;
 

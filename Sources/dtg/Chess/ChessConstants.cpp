@@ -50,6 +50,8 @@ namespace ChessConstants {
 
 		BR,  BN,  BB,  BQ,  BK,  BB,  BN,  BR,
 	};
+	extern const uint8_t STANDART_POSITION_WHITE_KING = 4;
+	extern const uint8_t STANDART_POSITION_BLACK_KING = 60;
 
 	const uint8_t STANDART_WHITEKING_POSITION = 60;
 	const uint8_t STANDART_BLACKKING_POSITION = 4;
